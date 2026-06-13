@@ -1,17 +1,47 @@
-from google import genai
+from brains import ask_gemini, ask_ollama
+
+# ── The one line that swaps the brain ──
+BACKEND = "gemini"   # "gemini" or "ollama"
+
+BRAINS = {"gemini": ask_gemini, "ollama": ask_ollama}
+
+SYSTEM = "You are a helpful, concise assistant."
 
 def main():
-    # $env:GEMINI_API_KEY="API_KEY"
+    
+    history = []          # neutral format: {"role": "user"/"assistant", "content": ...}
+    session_tokens = 0    # running total across the whole conversation
 
-    client = genai.Client()  # automatically reads GEMINI_API_KEY
+    # Choose brain according to backend
+    brain = BRAINS[BACKEND]
 
-    # flash models are fast, cheap, free-tier
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents="Explain what a token is in one short sentence.",
-    )
+    print(f"Chatting with backend: {BACKEND}")
+    print("Commands: /reset  /quit\n")
 
-    print(response.text)
+    while True:
+        user_input = input("you> ").strip()
+
+        if user_input == "/quit":
+            break
+        if user_input == "/reset":
+            history = []
+            print("[history cleared]\n")
+            continue
+        if not user_input:
+            continue
+
+        history.append({"role": "user", "content": user_input})
+
+        reply, usage = brain(history, SYSTEM)
+
+        history.append({"role": "assistant", "content": reply})
+        session_tokens += usage["total"]
+
+        print(f"\nbot> {reply}")
+        print(
+            f"[turn: prompt {usage['prompt']} + output {usage['output']} "
+            f"= total {usage['total']} | session so far: {session_tokens}]\n"
+        )
 
 
 if __name__ == "__main__":

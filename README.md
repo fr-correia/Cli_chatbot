@@ -1,20 +1,24 @@
 # CLI Chatbot
 
-Small terminal chatbot built with `google-genai` and Gemini.
+Terminal chatbot that can talk to either Gemini or a local Ollama model.
 
-## What It Does
+## Overview
 
-`main.py` starts a simple chat loop that sends each user message to Gemini and prints the reply. The conversation history is kept in memory for the life of the process.
+`main.py` is the interactive chat loop. It keeps conversation history in memory, supports `/reset` and `/quit`, and routes each prompt through the backend selected in `BACKEND`.
 
-`memory.py` contains the same chat-loop logic in a separate module, including token usage reporting after each response.
+`brains.py` holds the model adapters:
 
-`goldfish.py` is a minimal single-turn example that sends one prompt and prints the model response.
+- `ask_gemini(...)` sends the chat history to Gemini using `google-genai`
+- `ask_ollama(...)` sends the same history to a local Ollama model
+
+The current default backend is Gemini, but you can switch to Ollama by changing `BACKEND` in [main.py](main.py).
 
 ## Requirements
 
 - Python 3.14+
-- A Gemini API key available as `GEMINI_API_KEY`
-- `uv` or another Python package manager
+- `uv`
+- For Gemini: a `GEMINI_API_KEY` environment variable
+- For Ollama: a local Ollama installation with the `qwen3:8b` model available
 
 ## Setup
 
@@ -24,7 +28,7 @@ Install dependencies from the project folder:
 uv sync
 ```
 
-Set your API key in the terminal before running the chatbot.
+If you want to use Gemini, set your API key in the terminal first.
 
 PowerShell:
 
@@ -38,6 +42,12 @@ cmd.exe:
 set GEMINI_API_KEY=your-api-key
 ```
 
+If you want to use Ollama, make sure the Ollama service is running and that the model is installed:
+
+```bash
+ollama pull qwen3:8b
+```
+
 ## Run
 
 Start the chatbot with:
@@ -46,17 +56,7 @@ Start the chatbot with:
 uv run python main.py
 ```
 
-For the token-reporting version:
-
-```bash
-uv run python memory.py
-```
-
-For the one-shot example:
-
-```bash
-uv run python goldfish.py
-```
+Edit `BACKEND` in [main.py](main.py) to switch between `gemini` and `ollama`.
 
 ## Usage
 
@@ -66,11 +66,11 @@ uv run python goldfish.py
 
 ## Project Layout
 
-- `main.py` - basic CLI chatbot
-- `memory.py` - chat loop with usage tracking
-- `goldfish.py` - one-off prompt example
-- `pyproject.toml` - project metadata and dependencies
+- [main.py](main.py) - interactive CLI chat loop
+- [brains.py](brains.py) - Gemini and Ollama backend adapters
+- [pyproject.toml](pyproject.toml) - project metadata and dependencies
+- [README.md](README.md) - project setup and usage
 
 ## Notes
 
-The bot currently uses `gemini-2.5-flash` and a short system instruction so responses stay concise.
+The Gemini path uses `gemini-2.5-flash`, and both backends share the same neutral message format so the chat loop stays simple.
