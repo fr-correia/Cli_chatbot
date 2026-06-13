@@ -1,0 +1,33 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*.pyc.*
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pytype/
+.hypothesis/
+
+# Packaging and build outputs
+build/
+dist/
+wheels/
+*.egg-info/
+.coverage
+htmlcov/
+
+# Local environments and secrets
+.venv/
+venv/
+env/
+.env
+.env.*
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Miscellaneous logs
+*.log
