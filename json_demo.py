@@ -2,7 +2,7 @@ from typing import Literal
 from pydantic import BaseModel
 
 class Feedback(BaseModel):
-    sentimemt: Literal['positive', 'negative', 'neutral']
+    sentiment: Literal['positive', 'negative', 'neutral']
     summary: str
     topics: list[str]
 
