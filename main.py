@@ -1,7 +1,7 @@
 from brains import ask_gemini, ask_ollama
 from tools import ALL_TOOLS
 # ── The one line that swaps the brain ──
-BACKEND = "gemini"   # "gemini" or "ollama"
+BACKEND = "ollama"   # "gemini" or "ollama"
 
 BRAINS = {"gemini": ask_gemini, "ollama": ask_ollama}
 
@@ -32,7 +32,7 @@ def main():
 
         history.append({"role": "user", "content": user_input})
 
-        reply, usage = ask_gemini(history, SYSTEM, tools=ALL_TOOLS)
+        reply, usage = ask_ollama(history, SYSTEM, tools=ALL_TOOLS)
 
         history.append({"role": "assistant", "content": reply})
         session_tokens += usage["total"]

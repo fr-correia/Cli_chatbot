@@ -17,7 +17,7 @@ def calculate(expression: str) -> str:
     """Calculate a simple arithmetic expression.
 
     Args:
-        expression: A string containing a simple arithmetic expression, e.g. "2 + 2".
+        expression: A string containing an arithmetic expression, e.g. "2 + 2".
 
     """
     print(f"calculating: {expression}")
