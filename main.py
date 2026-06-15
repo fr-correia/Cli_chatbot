@@ -1,22 +1,21 @@
-from brains import ask_gemini, ask_ollama
 from tools import ALL_TOOLS
+from agent import run_agent
 # ── The one line that swaps the brain ──
 BACKEND = "ollama"   # "gemini" or "ollama"
 
-BRAINS = {"gemini": ask_gemini, "ollama": ask_ollama}
-
 SYSTEM = "You are a helpful, concise assistant."
+
+SHOW_TRACE = True    # print the agent's actions live+
 
 def main():
     
     history = []          # neutral format: {"role": "user"/"assistant", "content": ...}
     session_tokens = 0    # running total across the whole conversation
 
-    # Choose brain according to backend
-    brain = BRAINS[BACKEND]
-
     print(f"Chatting with backend: {BACKEND}")
-    print("Commands: /reset  /quit\n")
+    print("Commands: /reset  /quit  /trace (toggle agent trace)\n")
+
+    global SHOW_TRACE
 
     while True:
         user_input = input("you> ").strip()
@@ -27,12 +26,22 @@ def main():
             history = []
             print("[history cleared]\n")
             continue
+        if user_input == "/trace":
+            SHOW_TRACE = not SHOW_TRACE
+            print(f"[trace: {'ON' if SHOW_TRACE else 'OFF'}]\n")
+            continue
         if not user_input:
             continue
 
         history.append({"role": "user", "content": user_input})
 
-        reply, usage = ask_ollama(history, SYSTEM, tools=ALL_TOOLS)
+        reply, usage, trace = run_agent(history, SYSTEM, tools=ALL_TOOLS)
+
+        # option B: show what the agent actually did, before the answer
+        if SHOW_TRACE and trace:
+            print("\n[agent trace]")
+            for t in trace:
+                print(f"  step {t['step']}: {t['tool']}({t['args']}) -> {t['result']}")
 
         history.append({"role": "assistant", "content": reply})
         session_tokens += usage["total"]

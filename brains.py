@@ -53,36 +53,17 @@ def ask_gemini(history, system_instruction, tools=None):
 
     return "[stopped: too many tool steps]", usage
 
-def ask_ollama(history, system_instruction, tools=None):
-    # Neutral history is ALREADY in Ollama's shape — just prepend the system turn.
-    messages = [{"role": "system", "content": system_instruction}]
-    messages.extend(history)
-
-    usage = {"prompt": 0, "output": 0, "total": 0}
-
-    for _ in range(5):
-        response = chat(model="qwen3:8b", messages=messages, tools=tools,think=False)
-        usage["prompt"] += response.prompt_eval_count
-        usage["output"] += response.eval_count
-        usage["total"] += usage["prompt"]+usage["output"]
-
-        messages.append(response.message)
-
-        if response.message.tool_calls:
-            for call in response.message.tool_calls:
-                fn = BY_NAME.get(call.function.name)
-                args = call.function.arguments
-                result = fn(**args) if fn else f"no tool named {call.function.name}"
-                messages.append({
-                    "role": "user",
-                    "tool_name": call.function.name,
-                    "content": str(result)
-                })
-            continue
-
-        return response.message.content, usage
-
-    return "[stopped: too many tool steps]", usage
+def call_ollama(messages, tools=None):
+    """ONE model call. No loop, no tool execution. The orchestrator owns those.
+    `messages` arrives already in Ollama's shape (system turn included).
+    Returns (response_message, usage_dict)."""
+    response = chat(model="qwen3:8b", messages=messages, tools=tools, think=False)
+    usage = {
+        "prompt": response.prompt_eval_count,
+        "output": response.eval_count,
+        "total": response.prompt_eval_count + response.eval_count,
+    }
+    return response.message, usage
 
 if __name__ == "__main__":
     SYSTEM = "You are a terse assistant. Answer in exactly one sentence."
@@ -94,6 +75,6 @@ if __name__ == "__main__":
     print(usage)
 
     print("\n--- Ollama (local) ---")
-    text, usage = ask_ollama(history, SYSTEM)
+    text, usage = call_ollama(history, SYSTEM)
     print(text)
     print(usage)
