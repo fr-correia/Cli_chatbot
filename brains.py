@@ -3,10 +3,11 @@ from google.genai import types
 from ollama import chat
 from tools import BY_NAME
 
-# Gemini client initialization
-gemini_client = genai.Client()
+
 
 def ask_gemini(history, system_instruction, tools=None):
+    # Gemini client initialization
+    gemini_client = genai.Client()
     # $env:GEMINI_API_KEY="API_KEY"
     # Translate neutral -> gemini shape: "assistant" becomes "model",
     # and "content" becomes a "parts" list:
