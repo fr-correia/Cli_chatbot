@@ -34,3 +34,5 @@ Thumbs.db
 
 # Throwaway test files
 scratch/
+
+rag/chroma_store/
