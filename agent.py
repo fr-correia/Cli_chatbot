@@ -2,6 +2,7 @@
 from brains import call_ollama
 from tools import BY_NAME
 
+
 MAX_STEPS = 6   # hard budget guard — the ungraceful stop condition
 
 def run_agent(history, system_instruction, tools=None):
